@@ -4,7 +4,6 @@ import morgan from "morgan";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import cors from "cors";
-// import sio from "socket.io";
 
 import admin from "./config/admin";
 import patientRouter from "./routers/patientRouter";
@@ -56,32 +55,3 @@ const server = app.listen(process.env.PORT || 3000, () => {
   const { address, port } = server.address();
   console.log(`Server started at http://${address}:${port}`);
 });
-
-// Socket.io setup
-/* const socketio = sio(server);
-
-const sockets = {};
-
-socketio.of("/socket").on("connection", (socket) => {
-  socket.on("init", (data) => {
-    sockets[data.senderID] = socket;
-  });
-
-  socket.on("typing", (data) => {
-    if (sockets[data.senderID]) {
-      sockets[data.senderID].emit("typing", { name: data.name });
-    }
-  });
-
-  socket.on("message", (data) => {
-    if (sockets[data.receiverID]) {
-      console.log(data);
-      sockets[data.receiverID].emit("message", data);
-      // handle message storage
-    }
-  });
-
-  socket.on("disconnect", (data) => {
-    delete sockets[data.senderID];
-  });
-}); */
