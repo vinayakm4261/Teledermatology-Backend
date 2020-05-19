@@ -1,0 +1,43 @@
+{
+  "name": "teledermatology-backend",
+  "version": "1.0.0",
+  "description": "Backend for Teledermatology app",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node_modules/babel-cli/bin/babel.js ./src -d --source-maps --out-dir dist",
+    "clean": "rm dist && mkdir dist",
+    "start": "node ./dist/server.js",
+    "start-dev": "node_modules/nodemon/bin/nodemon.js -- node_modules/babel-cli/bin/babel-node.js ./src/server.js",
+    "pretest": "eslint --ignore-path .gitignore ./src",
+    "lint-fix": "eslint --ignore-path .gitignore ./src --fix"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel": "^6.23.0",
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-prettier": "^3.1.3",
+    "nodemon": "^2.0.3",
+    "prettier": "^2.0.5"
+  },
+  "dependencies": {
+    "babel-runtime": "^6.26.0",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "firebase-admin": "^8.11.0",
+    "moment": "^2.25.1",
+    "mongoose": "^5.9.11",
+    "morgan": "^1.10.0",
+    "socket.io": "^2.3.0"
+  }
+}
