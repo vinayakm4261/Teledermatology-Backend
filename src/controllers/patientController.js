@@ -89,7 +89,7 @@ const deletePatientReq = async (req, res) => {
       return res.send({
         type: "error",
         heading: "Error",
-        _error: "Could not be updated",
+        _error: "Could not be deleted",
       });
 
     res.send(DeletePatient);
@@ -99,4 +99,46 @@ const deletePatientReq = async (req, res) => {
   }
 };
 
-export { testReq, patientInsertReq, updatePatientReq, deletePatientReq };
+const fetchPatientReq = async (req, res) => {
+  try {
+    const count = req.query.count;
+    if (count == 1) {
+      const _id = req.query._id;
+      const FetchPatient = await Patient.findOne({ _id: _id });
+
+      if (!FetchPatient)
+        return res.send({
+          type: "error",
+          heading: "Error",
+          _error: "Could not fetch",
+        });
+
+      res.send(FetchPatient);
+    } else {
+      const date = req.query.date;
+      const FetchPatient = await Patient.find({
+        appointments: { $elemMatch: { date: date } },
+      });
+
+      if (!FetchPatient)
+        return res.send({
+          type: "error",
+          heading: "Error",
+          _error: "Could not fetch",
+        });
+
+      res.send(FetchPatient);
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal Error");
+  }
+};
+
+export {
+  testReq,
+  patientInsertReq,
+  updatePatientReq,
+  deletePatientReq,
+  fetchPatientReq,
+};
