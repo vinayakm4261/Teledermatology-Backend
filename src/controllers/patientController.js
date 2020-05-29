@@ -19,34 +19,11 @@ const testReq = async (req, res) => {
 
 const patientInsertReq = async (req, res) => {
   try {
-    const {
-      _id,
-      name,
-      dob,
-      phone,
-      gender,
-      email,
-      diseases,
-      appointments,
-    } = req.body;
-    const NewPatient = new Patient({
-      _id: _id,
-      name: name,
-      dob: dob,
-      phone: phone,
-      gender: gender,
-      email: email,
-      diseases: diseases,
-      appointments: appointments,
-    });
+    const NewPatient = new Patient({ ...req.body });
 
     NewPatient.save((err, patient) => {
       if (err) {
-        return res.send({
-          type: "error",
-          heading: "Server Error",
-          _error: "Please try again later",
-        });
+        return res.status(500).send("Server Error");
       } else {
         console.log(patient);
         return res.send(patient);
@@ -60,19 +37,14 @@ const patientInsertReq = async (req, res) => {
 
 const updatePatientReq = async (req, res) => {
   try {
-    const { _id, appointments } = req.body;
+    const { id, appointments } = req.body;
 
-    const UpdatePatient = await Patient.updateOne(
-      { _id: _id },
+    const UpdatePatient = await Patient.findOneAndUpdate(
+      { _id: id },
       { $set: { appointments: appointments } }
     );
 
-    if (!UpdatePatient)
-      return res.send({
-        type: "error",
-        heading: "Error",
-        _error: "Could not be updated",
-      });
+    if (!UpdatePatient) return res.status(500).send("Could not be updated");
 
     res.send(UpdatePatient);
   } catch (err) {
@@ -83,14 +55,9 @@ const updatePatientReq = async (req, res) => {
 
 const deletePatientReq = async (req, res) => {
   try {
-    const _id = req.query._id;
-    const DeletePatient = await Patient.deleteOne({ _id: _id });
-    if (!DeletePatient)
-      return res.send({
-        type: "error",
-        heading: "Error",
-        _error: "Could not be deleted",
-      });
+    const id = req.query.id;
+    const DeletePatient = await Patient.findOneAndDelete({ _id: id });
+    if (!DeletePatient) return res.status(500).send("Could not be deleted");
 
     res.send(DeletePatient);
   } catch (err) {
@@ -103,15 +70,10 @@ const fetchPatientReq = async (req, res) => {
   try {
     const count = req.query.count;
     if (count == 1) {
-      const _id = req.query._id;
-      const FetchPatient = await Patient.findOne({ _id: _id });
+      const id = req.query.id;
+      const FetchPatient = await Patient.findOne({ _id: id });
 
-      if (!FetchPatient)
-        return res.send({
-          type: "error",
-          heading: "Error",
-          _error: "Could not fetch",
-        });
+      if (!FetchPatient) return res.status(500).send("Could not be fetched");
 
       res.send(FetchPatient);
     } else {
