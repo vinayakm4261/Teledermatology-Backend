@@ -7,6 +7,7 @@ import cors from "cors";
 
 import admin from "./config/admin";
 import patientRouter from "./routers/patientRouter";
+import doctorRouter from "./routers/doctorRouter";
 
 dotenv.config();
 
@@ -46,6 +47,8 @@ function authReq(req, res, next) {
 app.use("/", authReq);
 
 app.use("/patient", patientRouter);
+
+app.use("/doctor", doctorRouter);
 
 app.get("/status", (req, res) => {
   res.send({ status: "Up" });
