@@ -8,7 +8,8 @@
     "build": "node_modules/babel-cli/bin/babel.js ./src -d --source-maps --out-dir dist",
     "clean": "rm dist && mkdir dist",
     "start": "node ./dist/server.js",
-    "start-dev": "node_modules/nodemon/bin/nodemon.js -- node_modules/babel-cli/bin/babel-node.js ./src/server.js",
+    "start-dev-bash": "node_modules/nodemon/bin/nodemon.js -- node_modules/babel-cli/bin/babel-node.js ./src/server.js",
+    "start-dev": "nodemon --exec npx babel-node ./src/server.js",
     "pretest": "eslint --ignore-path .gitignore ./src",
     "lint-fix": "eslint --ignore-path .gitignore ./src --fix"
   },

@@ -10,7 +10,7 @@ const testReq = async (req, res) => {
 
     if (!user) return res.send({ new: true, message: "Create Account" });
 
-    return res.send({ new: false, ...user });
+    res.send({ new: false, ...user });
   } catch (err) {
     console.log(err);
     res.status(500).send("Internal Error");
@@ -24,10 +24,8 @@ const patientInsertReq = async (req, res) => {
     NewPatient.save((err, patient) => {
       if (err) {
         return res.status(500).send("Server Error");
-      } else {
-        console.log(patient);
-        return res.send(patient);
       }
+      res.send(patient);
     });
   } catch (err) {
     console.log(err);
@@ -41,7 +39,7 @@ const updatePatientReq = async (req, res) => {
 
     const UpdatePatient = await Patient.findOneAndUpdate(
       { _id: id },
-      { $set: { appointments: appointments } }
+      { $set: { appointments } }
     );
 
     if (!UpdatePatient) return res.status(500).send("Could not be updated");
@@ -55,8 +53,10 @@ const updatePatientReq = async (req, res) => {
 
 const deletePatientReq = async (req, res) => {
   try {
-    const id = req.query.id;
+    const { id } = req.query;
+
     const DeletePatient = await Patient.findOneAndDelete({ _id: id });
+
     if (!DeletePatient) return res.status(500).send("Could not be deleted");
 
     res.send(DeletePatient);
@@ -68,18 +68,20 @@ const deletePatientReq = async (req, res) => {
 
 const fetchPatientReq = async (req, res) => {
   try {
-    const count = req.query.count;
-    if (count == 1) {
-      const id = req.query.id;
+    const { count } = req.query;
+    if (count === 1) {
+      const { id } = req.query;
+
       const FetchPatient = await Patient.findOne({ _id: id });
 
       if (!FetchPatient) return res.status(500).send("Could not be fetched");
 
       res.send(FetchPatient);
     } else {
-      const date = req.query.date;
+      const { date } = req.query;
+
       const FetchPatient = await Patient.find({
-        appointments: { $elemMatch: { date: date } },
+        appointments: { $elemMatch: { date } },
       });
 
       if (!FetchPatient)

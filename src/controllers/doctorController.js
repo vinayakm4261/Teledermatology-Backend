@@ -7,10 +7,8 @@ const doctorInsertReq = async (req, res) => {
     NewDoctor.save((err, doctor) => {
       if (err) {
         return res.status(500).send("Server Error");
-      } else {
-        console.log(doctor);
-        return res.send(doctor);
       }
+      res.send(doctor);
     });
   } catch (err) {
     console.log(err);
@@ -24,7 +22,7 @@ const updateDoctorReq = async (req, res) => {
 
     const UpdateDoctor = await Doctor.findOneAndUpdate(
       { _id: id },
-      { $set: { appointments: appointments } }
+      { $set: { appointments } }
     );
 
     if (!UpdateDoctor) return res.status(500).send("Could not be updated");
@@ -38,8 +36,10 @@ const updateDoctorReq = async (req, res) => {
 
 const deleteDoctorReq = async (req, res) => {
   try {
-    const id = req.query.id;
+    const { id } = req.query;
+
     const DeleteDoctor = await Doctor.findOneAndDelete({ _id: id });
+
     if (!DeleteDoctor) return res.status(500).send("Could not be deleted");
 
     res.send(DeleteDoctor);
@@ -51,18 +51,20 @@ const deleteDoctorReq = async (req, res) => {
 
 const fetchDoctorReq = async (req, res) => {
   try {
-    const count = req.query.count;
-    if (count == 1) {
-      const id = req.query.id;
+    const { count } = req.query;
+    if (count === 1) {
+      const { id } = req.query;
+
       const FetchDoctor = await Doctor.findOne({ _id: id });
 
       if (!FetchDoctor) return res.status(500).send("Could not be fetched");
 
       res.send(FetchDoctor);
     } else {
-      const department = req.query.department;
+      const { department } = req.query;
+
       const FetchDoctor = await Doctor.find({
-        department: department,
+        department,
       });
 
       if (!FetchDoctor)

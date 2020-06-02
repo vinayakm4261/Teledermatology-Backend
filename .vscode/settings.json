@@ -1,5 +1,4 @@
 {
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "terminal.integrated.shell.windows": "bash.exe"
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }
