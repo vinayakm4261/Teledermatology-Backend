@@ -17,6 +17,7 @@
     "no-console": "off",
     "prettier/prettier": "off",
     "no-unused-vars": "warn",
-    "consistent-return": "off"
+    "consistent-return": "off",
+    "no-return-assign": "off"
   }
 }

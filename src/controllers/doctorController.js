@@ -72,26 +72,26 @@ const fetchDoctor = async (req, res) => {
     if (count === 1) {
       const { id } = req.query;
 
-      const FetchDoctor = await Doctor.findOne({ _id: id });
+      const doctor = await Doctor.findOne({ _id: id });
 
-      if (!FetchDoctor) return res.status(500).send("Could not be fetched");
+      if (!doctor) return res.status(500).send("Could not be fetched");
 
-      res.send(FetchDoctor);
+      res.send(doctor);
     } else {
       const { department } = req.query;
 
-      const FetchDoctor = await Doctor.find({
+      const doctors = await Doctor.find({
         department,
       });
 
-      if (!FetchDoctor)
+      if (!doctors)
         return res.send({
           type: "error",
           heading: "Error",
           _error: "Could not fetch",
         });
 
-      res.send(FetchDoctor);
+      res.send(doctors);
     }
   } catch (err) {
     console.log(err);
