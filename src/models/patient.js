@@ -3,7 +3,7 @@ import mongoose, { Schema } from "mongoose";
 const patientSchema = new Schema({
   _id: String,
   name: String,
-  displayPhoto: String /* decide on this */,
+  // displayPhoto: String /* decide on this */,
   dob: String,
   phone: Number,
   gender: String,
