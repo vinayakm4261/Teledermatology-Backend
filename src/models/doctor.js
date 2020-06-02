@@ -6,9 +6,9 @@ const doctorSchema = new Schema({
   dob: String,
   gender: String,
   email: String,
-  type: String,
+  department: String,
   hospital: String,
-  appointments: Object,
+  appointments: Array,
 });
 
 export default mongoose.model("doctors", doctorSchema);
