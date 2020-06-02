@@ -1,6 +1,6 @@
 import Patient from "../models/patient";
 
-const testReq = async (req, res) => {
+const loginPatient = async (req, res) => {
   try {
     const { uid, phone } = req.body;
 
@@ -8,101 +8,97 @@ const testReq = async (req, res) => {
 
     const user = await Patient.findById(uid);
 
-    if (!user) return res.send({ new: true, message: "Create Account" });
+    if (!user) return res.send({ new: true, message: "Register Patient" });
 
-    res.send({ new: false, ...user });
+    res.send({ new: false, user });
   } catch (err) {
     console.log(err);
-    res.status(500).send("Internal Error");
+    res.status(500).send("Internal Server Error");
   }
 };
 
-const patientInsertReq = async (req, res) => {
+const registerPatient = async (req, res) => {
   try {
-    const NewPatient = new Patient({ ...req.body });
+    const patient = new Patient({ ...req.body });
 
-    NewPatient.save((err, patient) => {
+    patient.save((err, pt) => {
       if (err) {
-        return res.status(500).send("Server Error");
+        return res.status(500).send("Internal Server Error");
       }
-      res.send(patient);
+
+      res.send(pt);
     });
   } catch (err) {
     console.log(err);
-    res.status(500).send("Internal Error");
+    res.status(500).send("Internal Server Error");
   }
 };
 
-const updatePatientReq = async (req, res) => {
+const updatePatient = async (req, res) => {
   try {
     const { id, appointments } = req.body;
 
-    const UpdatePatient = await Patient.findOneAndUpdate(
+    const patient = await Patient.findOneAndUpdate(
       { _id: id },
       { $set: { appointments } }
     );
 
-    if (!UpdatePatient) return res.status(500).send("Could not be updated");
+    if (!patient) return res.status(500).send("Patient not found");
 
-    res.send(UpdatePatient);
+    res.send(patient);
   } catch (err) {
     console.log(err);
-    res.status(500).send("Internal Error");
+    res.status(500).send("Internal Server Error");
   }
 };
 
-const deletePatientReq = async (req, res) => {
+const deletePatient = async (req, res) => {
   try {
     const { id } = req.query;
 
-    const DeletePatient = await Patient.findOneAndDelete({ _id: id });
+    const patient = await Patient.findOneAndDelete({ _id: id });
 
-    if (!DeletePatient) return res.status(500).send("Could not be deleted");
+    if (!patient) return res.status(500).send("Patient not found");
 
-    res.send(DeletePatient);
+    res.send(patient);
   } catch (err) {
     console.log(err);
-    res.status(500).send("Internal Error");
+    res.status(500).send("Internal Server Error");
   }
 };
 
-const fetchPatientReq = async (req, res) => {
+const fetchPatients = async (req, res) => {
   try {
     const { count } = req.query;
     if (count === 1) {
       const { id } = req.query;
 
-      const FetchPatient = await Patient.findOne({ _id: id });
+      const patients = await Patient.findOne({ _id: id });
 
-      if (!FetchPatient) return res.status(500).send("Could not be fetched");
+      if (!patients) return res.status(500).send("Patient not found");
 
-      res.send(FetchPatient);
+      res.send(patients);
     } else {
       const { date } = req.query;
 
-      const FetchPatient = await Patient.find({
+      const patients = await Patient.find({
         appointments: { $elemMatch: { date } },
       });
 
-      if (!FetchPatient)
-        return res.send({
-          type: "error",
-          heading: "Error",
-          _error: "Could not fetch",
-        });
+      if (!patients) return res.status(500).send("Patients not found");
 
-      res.send(FetchPatient);
+      res.send(patients);
     }
   } catch (err) {
     console.log(err);
-    res.status(500).send("Internal Error");
+    res.status(500).send("Internal Server Error");
   }
 };
 
 export {
-  testReq,
-  patientInsertReq,
-  updatePatientReq,
-  deletePatientReq,
-  fetchPatientReq,
+  loginPatient,
+  registerPatient,
+  updatePatient,
+  deletePatient,
+  fetchPatients,
 };
