@@ -11,7 +11,7 @@ const loginDoctor = async (req, res) => {
     res.send({ new: false, user });
   } catch (err) {
     console.log(err);
-    res.status(500).send("Internal Error");
+    res.status(500).send({ message: "Internal Error", details: err.message });
   }
 };
 
@@ -21,13 +21,15 @@ const registerDoctor = async (req, res) => {
 
     doctor.save((err, dr) => {
       if (err) {
-        return res.status(500).send("Internal Error");
+        return res
+          .status(500)
+          .send({ message: "Internal Error", details: err.message });
       }
       res.send(dr);
     });
   } catch (err) {
     console.log(err);
-    res.status(500).send("Internal Error");
+    res.status(500).send({ message: "Internal Error", details: err.message });
   }
 };
 
@@ -40,12 +42,15 @@ const updateDoctor = async (req, res) => {
       { $set: { appointments } }
     );
 
-    if (!doctor) return res.status(500).send("Could not be updated");
+    if (!doctor)
+      return res
+        .status(500)
+        .send({ message: "Could not be updated", details: null });
 
     res.send(doctor);
   } catch (err) {
     console.log(err);
-    res.status(500).send("Internal Error");
+    res.status(500).send({ message: "Internal Error", details: err.message });
   }
 };
 
@@ -55,12 +60,15 @@ const deleteDoctor = async (req, res) => {
 
     const doctor = await Doctor.findOneAndDelete({ _id: id });
 
-    if (!doctor) return res.status(500).send("Could not be deleted");
+    if (!doctor)
+      return res
+        .status(500)
+        .send({ message: "Could not be deleted", details: null });
 
     res.send(doctor);
   } catch (err) {
     console.log(err);
-    res.status(500).send("Internal Error");
+    res.status(500).send({ message: "Internal Error", details: err.message });
   }
 };
 
@@ -72,7 +80,10 @@ const fetchDoctor = async (req, res) => {
 
       const doctor = await Doctor.findOne({ _id: id });
 
-      if (!doctor) return res.status(500).send("Could not be fetched");
+      if (!doctor)
+        return res
+          .status(500)
+          .send({ message: "No doctor found", details: null });
 
       res.send(doctor);
     } else {
@@ -83,17 +94,15 @@ const fetchDoctor = async (req, res) => {
       });
 
       if (!doctors)
-        return res.send({
-          type: "error",
-          heading: "Error",
-          _error: "Could not fetch",
-        });
+        return res
+          .status(500)
+          .send({ message: "No doctors found", details: null });
 
       res.send(doctors);
     }
   } catch (err) {
     console.log(err);
-    res.status(500).send("Internal Error");
+    res.status(500).send({ message: "Internal Error", details: err.message });
   }
 };
 
