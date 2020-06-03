@@ -55,7 +55,8 @@ app.get("/status", (req, res) => {
 });
 
 app.use((req, res, next) => {
-  res.status(404).send({ message: "Route not found" });
+  res.status(404);
+  res.send({ message: "Route not found" });
 });
 
 const server = app.listen(process.env.PORT || 3000, () => {
