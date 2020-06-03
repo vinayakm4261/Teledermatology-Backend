@@ -2,9 +2,7 @@ import Patient from "../models/patient";
 
 const loginPatient = async (req, res) => {
   try {
-    const { uid, phone } = req.body;
-
-    if (!uid || !phone) return res.status(400).send("Bad Request");
+    const { uid } = req.body;
 
     const user = await Patient.findById(uid);
 

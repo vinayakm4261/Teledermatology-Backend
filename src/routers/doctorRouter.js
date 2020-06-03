@@ -15,10 +15,7 @@ const router = Router();
 
 router.post(
   "/login",
-  [
-    check("uid").not().isEmpty().withMessage("Please provide a user ID"),
-    check("phone").isMobilePhone().withMessage("Provide a valid phone number"),
-  ],
+  [check("uid").not().isEmpty().withMessage("Please provide a user ID")],
   validate,
   loginDoctor
 );
