@@ -2,21 +2,19 @@ import Doctor from "../models/doctor";
 
 const loginDoctor = async (req, res) => {
   try {
-    const { uid } = req.body;
+    const { _id } = req.body;
 
-    const user = await Doctor.findById(uid);
+    const user = await Doctor.findById(_id);
 
     if (!user) return res.send({ new: true, message: "Register Doctor" });
 
     res.send({ new: false, user });
   } catch (err) {
     console.log(err);
-    res
-      .status(500)
-      .send({
-        message: "Internal Server Error. Please try again later.",
-        details: err.message,
-      });
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later.",
+      details: err.message,
+    });
   }
 };
 
@@ -26,23 +24,19 @@ const registerDoctor = async (req, res) => {
 
     doctor.save((err, dr) => {
       if (err) {
-        return res
-          .status(500)
-          .send({
-            message: "Internal Server Error. Please try again later.",
-            details: err.message,
-          });
+        return res.status(500).send({
+          message: "Internal Server Error. Please try again later.",
+          details: err.message,
+        });
       }
       res.send(dr);
     });
   } catch (err) {
     console.log(err);
-    res
-      .status(500)
-      .send({
-        message: "Internal Server Error. Please try again later.",
-        details: err.message,
-      });
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later.",
+      details: err.message,
+    });
   }
 };
 
@@ -56,22 +50,18 @@ const updateDoctor = async (req, res) => {
     );
 
     if (!doctor)
-      return res
-        .status(400)
-        .send({
-          message: "Doctor not found. Please check the doctor ID.",
-          details: null,
-        });
+      return res.status(400).send({
+        message: "Doctor not found. Please check the doctor ID.",
+        details: null,
+      });
 
     res.send(doctor);
   } catch (err) {
     console.log(err);
-    res
-      .status(500)
-      .send({
-        message: "Internal Server Error. Please try again later.",
-        details: err.message,
-      });
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later.",
+      details: err.message,
+    });
   }
 };
 
@@ -82,22 +72,18 @@ const deleteDoctor = async (req, res) => {
     const doctor = await Doctor.findOneAndDelete({ _id: id });
 
     if (!doctor)
-      return res
-        .status(400)
-        .send({
-          message: "Doctor not found. Please check the doctor ID.",
-          details: null,
-        });
+      return res.status(400).send({
+        message: "Doctor not found. Please check the doctor ID.",
+        details: null,
+      });
 
     res.send(doctor);
   } catch (err) {
     console.log(err);
-    res
-      .status(500)
-      .send({
-        message: "Internal Server Error. Please try again later.",
-        details: err.message,
-      });
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later.",
+      details: err.message,
+    });
   }
 };
 
@@ -110,12 +96,10 @@ const fetchDoctor = async (req, res) => {
       const doctor = await Doctor.findOne({ _id: id });
 
       if (!doctor)
-        return res
-          .status(400)
-          .send({
-            message: "Doctor not found. Please check the doctor ID.",
-            details: null,
-          });
+        return res.status(400).send({
+          message: "Doctor not found. Please check the doctor ID.",
+          details: null,
+        });
 
       res.send(doctor);
     } else {
@@ -134,12 +118,10 @@ const fetchDoctor = async (req, res) => {
     }
   } catch (err) {
     console.log(err);
-    res
-      .status(500)
-      .send({
-        message: "Internal Server Error. Please try again later.",
-        details: err.message,
-      });
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later.",
+      details: err.message,
+    });
   }
 };
 

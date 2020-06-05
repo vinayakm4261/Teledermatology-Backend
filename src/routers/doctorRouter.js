@@ -15,7 +15,7 @@ const router = Router();
 
 router.post(
   "/login",
-  [check("uid").not().isEmpty().withMessage("Please provide a user ID")],
+  [check("_id").not().isEmpty().withMessage("Please provide a user ID")],
   validate,
   loginDoctor
 );
@@ -23,8 +23,10 @@ router.post(
 router.post(
   "/register",
   [
-    check("uid").not().isEmpty().withMessage("Please provide a user ID"),
-    check("phone").isMobilePhone().withMessage("Provide a valid phone number"),
+    check("_id").not().isEmpty().withMessage("Please provide a user ID"),
+    check("phoneNumber")
+      .matches(/^\+[1-9]{1}[0-9]{3,14}$/, "i")
+      .withMessage("Provide a valid phone number"),
     check("name").not().isEmpty().withMessage("Please provide a name"),
     check("dob").not().isEmpty().withMessage("Please provide a date of birth"),
     check("gender").not().isEmpty().withMessage("Please provide a gender"),

@@ -2,9 +2,9 @@ import Patient from "../models/patient";
 
 const loginPatient = async (req, res) => {
   try {
-    const { uid } = req.body;
+    const { _id } = req.body;
 
-    const user = await Patient.findById(uid);
+    const user = await Patient.findById(_id);
 
     if (!user) return res.send({ new: true, message: "Register Patient" });
 
