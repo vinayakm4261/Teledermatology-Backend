@@ -54,6 +54,11 @@ app.get("/status", (req, res) => {
   res.send({ status: "Up" });
 });
 
+app.use((req, res, next) => {
+  res.status(404);
+  res.send({ message: "Route not found" });
+});
+
 const server = app.listen(process.env.PORT || 3000, () => {
   const { address, port } = server.address();
   console.log(`Server started at http://${address}:${port}`);

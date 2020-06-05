@@ -1,85 +1,128 @@
 import Doctor from "../models/doctor";
 
-const doctorInsertReq = async (req, res) => {
+const loginDoctor = async (req, res) => {
   try {
-    const NewDoctor = new Doctor({ ...req.body });
+    const { _id } = req.body;
 
-    NewDoctor.save((err, doctor) => {
-      if (err) {
-        return res.status(500).send("Server Error");
-      }
-      res.send(doctor);
-    });
+    const user = await Doctor.findById(_id);
+
+    if (!user) return res.send({ new: true, message: "Register Doctor" });
+
+    res.send({ new: false, user });
   } catch (err) {
     console.log(err);
-    res.status(500).send("Internal Error");
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later.",
+      details: err.message,
+    });
   }
 };
 
-const updateDoctorReq = async (req, res) => {
+const registerDoctor = async (req, res) => {
+  try {
+    const doctor = new Doctor({ ...req.body });
+
+    doctor.save((err, dr) => {
+      if (err) {
+        return res.status(500).send({
+          message: "Internal Server Error. Please try again later.",
+          details: err.message,
+        });
+      }
+      res.send(dr);
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later.",
+      details: err.message,
+    });
+  }
+};
+
+const updateDoctor = async (req, res) => {
   try {
     const { id, appointments } = req.body;
 
-    const UpdateDoctor = await Doctor.findOneAndUpdate(
+    const doctor = await Doctor.findOneAndUpdate(
       { _id: id },
       { $set: { appointments } }
     );
 
-    if (!UpdateDoctor) return res.status(500).send("Could not be updated");
+    if (!doctor)
+      return res.status(400).send({
+        message: "Doctor not found. Please check the doctor ID.",
+        details: null,
+      });
 
-    res.send(UpdateDoctor);
+    res.send(doctor);
   } catch (err) {
     console.log(err);
-    res.status(500).send("Internal Error");
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later.",
+      details: err.message,
+    });
   }
 };
 
-const deleteDoctorReq = async (req, res) => {
+const deleteDoctor = async (req, res) => {
   try {
     const { id } = req.query;
 
-    const DeleteDoctor = await Doctor.findOneAndDelete({ _id: id });
+    const doctor = await Doctor.findOneAndDelete({ _id: id });
 
-    if (!DeleteDoctor) return res.status(500).send("Could not be deleted");
+    if (!doctor)
+      return res.status(400).send({
+        message: "Doctor not found. Please check the doctor ID.",
+        details: null,
+      });
 
-    res.send(DeleteDoctor);
+    res.send(doctor);
   } catch (err) {
     console.log(err);
-    res.status(500).send("Internal Error");
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later.",
+      details: err.message,
+    });
   }
 };
 
-const fetchDoctorReq = async (req, res) => {
+const fetchDoctor = async (req, res) => {
   try {
     const { count } = req.query;
     if (count === 1) {
       const { id } = req.query;
 
-      const FetchDoctor = await Doctor.findOne({ _id: id });
+      const doctor = await Doctor.findOne({ _id: id });
 
-      if (!FetchDoctor) return res.status(500).send("Could not be fetched");
+      if (!doctor)
+        return res.status(400).send({
+          message: "Doctor not found. Please check the doctor ID.",
+          details: null,
+        });
 
-      res.send(FetchDoctor);
+      res.send(doctor);
     } else {
       const { department } = req.query;
 
-      const FetchDoctor = await Doctor.find({
+      const doctors = await Doctor.find({
         department,
       });
 
-      if (!FetchDoctor)
-        return res.send({
-          type: "error",
-          heading: "Error",
-          _error: "Could not fetch",
-        });
+      if (!doctors)
+        return res
+          .status(400)
+          .send({ message: "No doctors found", details: null });
 
-      res.send(FetchDoctor);
+      res.send(doctors);
     }
   } catch (err) {
     console.log(err);
-    res.status(500).send("Internal Error");
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later.",
+      details: err.message,
+    });
   }
 };
 
-export { doctorInsertReq, updateDoctorReq, deleteDoctorReq, fetchDoctorReq };
+export { loginDoctor, registerDoctor, updateDoctor, deleteDoctor, fetchDoctor };

@@ -1,17 +1,49 @@
 import { Router } from "express";
+import { check } from "express-validator";
 
 import {
-  doctorInsertReq,
-  updateDoctorReq,
-  deleteDoctorReq,
-  fetchDoctorReq,
+  loginDoctor,
+  registerDoctor,
+  fetchDoctor,
+  updateDoctor,
+  deleteDoctor,
 } from "../controllers/doctorController";
+
+import validate from "../middlewares/validate";
 
 const router = Router();
 
-router.route("/insert").post(doctorInsertReq);
-router.route("/update").put(updateDoctorReq);
-router.route("/delete").delete(deleteDoctorReq);
-router.route("/fetch").get(fetchDoctorReq);
+router.post(
+  "/login",
+  [check("_id").not().isEmpty().withMessage("Please provide a user ID")],
+  validate,
+  loginDoctor
+);
+
+router.post(
+  "/register",
+  [
+    check("_id").not().isEmpty().withMessage("Please provide a user ID"),
+    check("phoneNumber")
+      .matches(/^\+[1-9]{1}[0-9]{3,14}$/, "i")
+      .withMessage("Provide a valid phone number"),
+    check("name").not().isEmpty().withMessage("Please provide a name"),
+    check("dob").not().isEmpty().withMessage("Please provide a date of birth"),
+    check("gender").not().isEmpty().withMessage("Please provide a gender"),
+    check("department")
+      .not()
+      .isEmpty()
+      .withMessage("Please provide a department"),
+    check("hospital").not().isEmpty().withMessage("Please provide a hospital"),
+  ],
+  validate,
+  registerDoctor
+);
+
+router.put("/update", updateDoctor);
+
+router.delete("/delete", deleteDoctor);
+
+router.get("/fetch", fetchDoctor);
 
 export default router;
