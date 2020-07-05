@@ -28,4 +28,29 @@ const uploadAudio = async (req, res) => {
   }
 };
 
-export { uploadImage, uploadAudio };
+const uploadVideo = async (req, res) => {
+  try {
+    var vd = fs.readFileSync(req.file.path);
+    console.log(vd);
+    let uploadLocation = "video/vid.mp4";
+
+    fs.writeFileSync(uploadLocation, vd);
+
+    res.sendStatus(200);
+  } catch (e) {
+    console.log("Error");
+  }
+};
+
+const uploadMedia = async (req, res) => {
+  try {
+    var md = fs.readFileSync(req.file.path);
+    console.log(md);
+
+    res.sendStatus(200);
+  } catch (e) {
+    console.log("Error");
+  }
+};
+
+export { uploadImage, uploadAudio, uploadVideo, uploadMedia };
