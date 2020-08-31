@@ -126,10 +126,32 @@ const fetchPatients = async (req, res) => {
   }
 };
 
+const getAppointments = async (req, res) => {
+  try {
+    const { _id } = req.params;
+
+    const patient = await Patient.findById(_id);
+
+    if (!patient)
+      return res
+        .status(500)
+        .send({ message: "Patient not found", details: null });
+
+    res.send({ appointments: patient.appointments });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later",
+      details: err.message,
+    });
+  }
+};
+
 export {
   loginPatient,
   registerPatient,
   updatePatient,
   deletePatient,
   fetchPatients,
+  getAppointments,
 };

@@ -3,13 +3,16 @@ import mongoose, { Schema } from "mongoose";
 const patientSchema = new Schema({
   _id: String,
   name: String,
-  // displayPhoto: String /* decide on this */,
+  displayPhoto: String,
   dob: String,
   phoneNumber: Number,
   gender: String,
   email: String,
   diseases: Array,
-  appointments: Array,
+  appointments: {
+    type: Array,
+    default: [],
+  },
 });
 
 export default mongoose.model("patients", patientSchema);

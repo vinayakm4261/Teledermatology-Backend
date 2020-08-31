@@ -54,9 +54,9 @@ app.get("/status", (req, res) => {
   res.send({ status: "Up" });
 });
 
-app.use((req, res, next) => {
+app.use((req, res) => {
   res.status(404);
-  res.send({ message: "Route not found" });
+  res.send({ message: "Endpoint not found" });
 });
 
 const server = app.listen(process.env.PORT || 3000, () => {
