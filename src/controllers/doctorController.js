@@ -1,3 +1,4 @@
+import moment from "moment";
 import Doctor from "../models/doctor";
 
 const loginDoctor = async (req, res) => {
@@ -125,4 +126,40 @@ const fetchDoctor = async (req, res) => {
   }
 };
 
-export { loginDoctor, registerDoctor, updateDoctor, deleteDoctor, fetchDoctor };
+const updateAvailability = async (req, res) => {
+  try {
+    const { id, availability } = req.body;
+
+    if (moment(availability.endDate).isAfter(availability.startDate)) {
+      const doctor = await Doctor.findOneAndUpdate(
+        { _id: id },
+        { $set: { availability } }
+      );
+
+      if (!doctor)
+        return res.status(400).send({
+          message: "Doctor not found. Please check the doctor ID.",
+          details: null,
+        });
+
+      res.send(doctor);
+    } else {
+      console.log("Invalid Date");
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later",
+      details: err.message,
+    });
+  }
+};
+
+export {
+  loginDoctor,
+  registerDoctor,
+  updateDoctor,
+  deleteDoctor,
+  fetchDoctor,
+  updateAvailability,
+};

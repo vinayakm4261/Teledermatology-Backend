@@ -10,6 +10,7 @@ const doctorSchema = new Schema({
   department: String,
   hospital: String,
   appointments: Array,
+  availability: Object,
 });
 
 export default mongoose.model("doctors", doctorSchema);
