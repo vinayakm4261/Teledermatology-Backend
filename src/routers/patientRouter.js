@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { check } from "express-validator";
+import multer from "multer";
 
 import {
   loginPatient,
@@ -8,11 +9,23 @@ import {
   updatePatient,
   deletePatient,
   getAppointments,
+  newAppointment,
 } from "../controllers/patientController";
 
 import validate from "../middlewares/validate";
 
 const router = Router();
+
+// const upload = multer({ dest: "./uploads" });
+
+const storage = multer.diskStorage({
+  destination: `${__dirname}../../uploads`,
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
+
+const upload = multer({ storage });
 
 router.post(
   "/login",
@@ -43,5 +56,7 @@ router.delete("/delete", deletePatient);
 router.get("/fetch", fetchPatients);
 
 router.get("/getAppointments/:_id", getAppointments);
+
+router.put("/newAppointment", upload.array("media"), newAppointment);
 
 export default router;

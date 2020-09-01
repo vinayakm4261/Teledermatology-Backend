@@ -1,4 +1,6 @@
+import fs from "fs";
 import Patient from "../models/patient";
+import Appointment from "../models/appointment";
 
 const loginPatient = async (req, res) => {
   try {
@@ -147,6 +149,59 @@ const getAppointments = async (req, res) => {
   }
 };
 
+const newAppointment = async (req, res) => {
+  try {
+    const {
+      doctorID,
+      patientID,
+      date,
+      time,
+      symptoms,
+      additionalInfo = "",
+      photos,
+      videos,
+      audio,
+    } = req.body;
+    const appointment = new Appointment({
+      doctorID,
+      patientID,
+      date,
+      time,
+      symptoms,
+      additionalInfo,
+      photos,
+      videos,
+      audio,
+    });
+    const apptID = appointment._id;
+    req.files.forEach((file, index) => {
+      fs.rename(
+        file.path,
+        `${__dirname}../../uploads/${apptID}-${index}.${
+          file.mimetype.split("/")[1]
+        }`,
+        () => {}
+      );
+    });
+    appointment.save((err, appt) => {
+      if (err) {
+        return res.status(500).send({
+          message: "Internal Server Error. Please try again later",
+          details: err.message,
+        });
+      }
+
+      res.send(appt);
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later",
+      details: err.message,
+    });
+  }
+};
+
 export {
   loginPatient,
   registerPatient,
@@ -154,4 +209,5 @@ export {
   deletePatient,
   fetchPatients,
   getAppointments,
+  newAppointment,
 };

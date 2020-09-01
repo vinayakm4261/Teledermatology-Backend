@@ -4,6 +4,7 @@ const appointmentSchema = new Schema({
   doctorID: String,
   patientID: String,
   date: String,
+  time: String,
   symptoms: Array,
   additionalInfo: String,
   photos: Array,
