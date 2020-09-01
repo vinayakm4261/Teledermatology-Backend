@@ -125,4 +125,36 @@ const fetchDoctor = async (req, res) => {
   }
 };
 
-export { loginDoctor, registerDoctor, updateDoctor, deleteDoctor, fetchDoctor };
+const updateProfile = async (req, res) => {
+  try {
+    const { id } = req.body;
+
+    const doctor = await Doctor.findOneAndUpdate(
+      { _id: id },
+      { $set: { ...req.body.updateData } }
+    );
+
+    if (!doctor)
+      return res.status(400).send({
+        message: "Doctor not found. Please check the doctor ID.",
+        details: null,
+      });
+
+    res.send(doctor);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later.",
+      details: err.message,
+    });
+  }
+};
+
+export {
+  loginDoctor,
+  registerDoctor,
+  updateDoctor,
+  deleteDoctor,
+  fetchDoctor,
+  updateProfile,
+};

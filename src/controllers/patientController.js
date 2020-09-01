@@ -126,10 +126,36 @@ const fetchPatients = async (req, res) => {
   }
 };
 
+const updateProfile = async (req, res) => {
+  try {
+    const { id } = req.body;
+
+    const patient = await Patient.findOneAndUpdate(
+      { _id: id },
+      { $set: { ...req.body.updateData } }
+    );
+
+    if (!patient)
+      return res.status(400).send({
+        message: "Patient not found. Please check the patient ID.",
+        details: null,
+      });
+
+    res.send(patient);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later.",
+      details: err.message,
+    });
+  }
+};
+
 export {
   loginPatient,
   registerPatient,
   updatePatient,
   deletePatient,
   fetchPatients,
+  updateProfile,
 };

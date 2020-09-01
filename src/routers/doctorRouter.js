@@ -7,6 +7,7 @@ import {
   fetchDoctor,
   updateDoctor,
   deleteDoctor,
+  updateProfile,
 } from "../controllers/doctorController";
 
 import validate from "../middlewares/validate";
@@ -45,5 +46,7 @@ router.put("/update", updateDoctor);
 router.delete("/delete", deleteDoctor);
 
 router.get("/fetch", fetchDoctor);
+
+router.put("/updateProfile", updateProfile);
 
 export default router;
