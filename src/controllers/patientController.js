@@ -1,6 +1,7 @@
 import fs from "fs";
 import Patient from "../models/patient";
 import Appointment from "../models/appointment";
+import Doctor from "../models/doctor";
 
 const loginPatient = async (req, res) => {
   try {
@@ -132,14 +133,27 @@ const getAppointments = async (req, res) => {
   try {
     const { _id } = req.params;
 
-    const patient = await Patient.findById(_id);
+    const appointments = await Appointment.find({ patientID: _id });
 
-    if (!patient)
-      return res
-        .status(500)
-        .send({ message: "Patient not found", details: null });
+    res.send(appointments);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later",
+      details: err.message,
+    });
+  }
+};
 
-    res.send({ appointments: patient.appointments });
+const loadPatientData = async (req, res) => {
+  try {
+    const { _id } = req.params;
+
+    const doctors = await Doctor.find();
+
+    const appointments = await Appointment.find({ patientID: _id });
+
+    res.send({ doctors, appointments });
   } catch (err) {
     console.log(err);
     res.status(500).send({
@@ -162,6 +176,7 @@ const newAppointment = async (req, res) => {
       videos,
       audio,
     } = req.body;
+
     const appointment = new Appointment({
       doctorID,
       patientID,
@@ -173,7 +188,9 @@ const newAppointment = async (req, res) => {
       videos,
       audio,
     });
+
     const apptID = appointment._id;
+
     req.files.forEach((file, index) => {
       fs.rename(
         file.path,
@@ -183,6 +200,7 @@ const newAppointment = async (req, res) => {
         () => {}
       );
     });
+
     appointment.save((err, appt) => {
       if (err) {
         return res.status(500).send({
@@ -210,4 +228,5 @@ export {
   fetchPatients,
   getAppointments,
   newAppointment,
+  loadPatientData,
 };

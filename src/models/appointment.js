@@ -5,6 +5,10 @@ const appointmentSchema = new Schema({
   patientID: String,
   date: String,
   time: String,
+  status: {
+    type: String,
+    default: "pending",
+  },
   symptoms: Array,
   additionalInfo: String,
   photos: Array,

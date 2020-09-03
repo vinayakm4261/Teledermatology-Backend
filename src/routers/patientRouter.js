@@ -10,13 +10,12 @@ import {
   deletePatient,
   getAppointments,
   newAppointment,
+  loadPatientData,
 } from "../controllers/patientController";
 
 import validate from "../middlewares/validate";
 
 const router = Router();
-
-// const upload = multer({ dest: "./uploads" });
 
 const storage = multer.diskStorage({
   destination: `${__dirname}../../uploads`,
@@ -56,6 +55,8 @@ router.delete("/delete", deletePatient);
 router.get("/fetch", fetchPatients);
 
 router.get("/getAppointments/:_id", getAppointments);
+
+router.get("/loadPatientData/:_id", loadPatientData);
 
 router.put("/newAppointment", upload.array("media"), newAppointment);
 
