@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { check } from "express-validator";
 import multer from "multer";
+import fs from "fs";
 
 import {
   loginPatient,
@@ -18,7 +19,18 @@ import validate from "../middlewares/validate";
 const router = Router();
 
 const storage = multer.diskStorage({
-  destination: `${__dirname}../../uploads`,
+  destination: (req, file, cb) => {
+    if (file.fieldname === "photos") {
+      fs.mkdirSync(`${__dirname}../../uploads/photos`, { recursive: true });
+      cb(null, `${__dirname}../../uploads/photos`);
+    } else if (file.fieldname === "videos") {
+      fs.mkdirSync(`${__dirname}../../uploads/videos`, { recursive: true });
+      cb(null, `${__dirname}../../uploads/videos/`);
+    } else if (file.fieldname === "audio") {
+      fs.mkdirSync(`${__dirname}../../uploads/audio`, { recursive: true });
+      cb(null, `${__dirname}../../uploads/audio/`);
+    }
+  },
   filename: (req, file, cb) => {
     cb(null, file.originalname);
   },
@@ -58,6 +70,20 @@ router.get("/getAppointments/:_id", getAppointments);
 
 router.get("/loadPatientData/:_id", loadPatientData);
 
-router.put("/newAppointment", upload.array("media"), newAppointment);
+router.put(
+  "/newAppointment",
+  upload.fields([
+    {
+      name: "photos",
+    },
+    {
+      name: "videos",
+    },
+    {
+      name: "audio",
+    },
+  ]),
+  newAppointment
+);
 
 export default router;

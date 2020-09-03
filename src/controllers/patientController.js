@@ -190,15 +190,17 @@ const newAppointment = async (req, res) => {
     });
 
     const apptID = appointment._id;
-
-    req.files.forEach((file, index) => {
-      fs.rename(
-        file.path,
-        `${__dirname}../../uploads/${apptID}-${index}.${
-          file.mimetype.split("/")[1]
-        }`,
-        () => {}
-      );
+    console.log(req.files);
+    Object.values(req.files).forEach((field) => {
+      field.forEach((file, index) => {
+        fs.rename(
+          file.path,
+          `${__dirname}../../uploads/${file.fieldname}/${apptID}-${index}.${
+            file.mimetype.split("/")[1]
+          }`,
+          () => {}
+        );
+      });
     });
 
     appointment.save((err, appt) => {
