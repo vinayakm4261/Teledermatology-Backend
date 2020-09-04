@@ -3,6 +3,8 @@ import { check } from "express-validator";
 import multer from "multer";
 import fs from "fs";
 
+import validate from "../middlewares/validate";
+
 import {
   loginPatient,
   registerPatient,
@@ -13,8 +15,6 @@ import {
   newAppointment,
   loadPatientData,
 } from "../controllers/patientController";
-
-import validate from "../middlewares/validate";
 
 const router = Router();
 
