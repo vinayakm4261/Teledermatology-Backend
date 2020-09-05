@@ -134,31 +134,43 @@ const loadDoctorData = async (req, res) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const patients = await Patient.find();
-
-    const appointments = await Appointment.find({
-      doctorID: _id,
-      date: { $gte: today },
-    })
-      .select("date time status symptoms patientID")
-      .exec();
-
-    const toSend = appointments.map(({ patientID, _doc: { ...app } }) => {
-      const d = patients.find((pat) => pat._id === patientID);
-
-      return {
-        ...app,
-        patientData: {
-          _id: d._id,
-          name: d.name,
-          age: d.age,
-          gender: d.gender,
-          profilePic: d.profilePic,
+    const appointments = await Appointment.aggregate([
+      {
+        $match: { doctorID: _id, date: { $gte: today } },
+      },
+      {
+        $lookup: {
+          from: "patients",
+          localField: "patientID",
+          foreignField: "_id",
+          as: "patientDataArray",
         },
-      };
-    });
+      },
+      {
+        $addFields: {
+          patientData: {
+            $arrayElemAt: ["$patientDataArray", 0],
+          },
+        },
+      },
+      {
+        $project: {
+          date: 1,
+          time: 1,
+          status: 1,
+          symptoms: 1,
+          patientData: {
+            _id: 1,
+            name: 1,
+            age: 1,
+            gender: 1,
+            profilePic: 1,
+          },
+        },
+      },
+    ]);
 
-    res.send({ appointments: toSend });
+    res.send({ appointments });
   } catch (err) {
     console.log(err);
     res.status(500).send({

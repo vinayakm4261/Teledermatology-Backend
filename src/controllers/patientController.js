@@ -156,31 +156,43 @@ const loadPatientData = async (req, res) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const doctors = await Doctor.find();
-
-    const appointments = await Appointment.find({
-      patientID: _id,
-      date: { $gte: today },
-    })
-      .select("date time status symptoms doctorID")
-      .exec();
-
-    const toSend = appointments.map(({ doctorID, _doc: { ...app } }) => {
-      const d = doctors.find((doc) => doc._id === doctorID);
-
-      return {
-        ...app,
-        doctorData: {
-          _id: d._id,
-          name: d.name,
-          hospital: d.hospital,
-          department: d.department,
-          profilePic: d.profilePic,
+    const appointments = await Appointment.aggregate([
+      {
+        $match: { patientID: _id, date: { $gte: today } },
+      },
+      {
+        $lookup: {
+          from: "doctors",
+          localField: "doctorID",
+          foreignField: "_id",
+          as: "doctorDataArray",
         },
-      };
-    });
+      },
+      {
+        $addFields: {
+          doctorData: {
+            $arrayElemAt: ["$doctorDataArray", 0],
+          },
+        },
+      },
+      {
+        $project: {
+          date: 1,
+          time: 1,
+          status: 1,
+          symptoms: 1,
+          doctorData: {
+            _id: 1,
+            name: 1,
+            hospital: 1,
+            department: 1,
+            profilePic: 1,
+          },
+        },
+      },
+    ]);
 
-    res.send({ appointments: toSend });
+    res.send({ appointments });
   } catch (err) {
     console.log(err);
     res.status(500).send({
@@ -238,6 +250,7 @@ const newAppointment = async (req, res) => {
       });
 
       const apptID = appointment._id;
+
       Object.values(req.files).forEach((field) => {
         field.forEach((file, index) => {
           fs.rename(
