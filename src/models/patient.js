@@ -7,6 +7,7 @@ const patientSchema = new Schema({
   _id: String,
   name: String,
   dob: String,
+  age: Number,
   phoneNumber: Number,
   gender: String,
   email: String,

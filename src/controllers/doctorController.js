@@ -1,4 +1,6 @@
+import Patient from "../models/patient";
 import Doctor from "../models/doctor";
+import Appointment from "../models/appointment";
 
 const loginDoctor = async (req, res) => {
   try {
@@ -125,4 +127,52 @@ const fetchDoctor = async (req, res) => {
   }
 };
 
-export { loginDoctor, registerDoctor, updateDoctor, deleteDoctor, fetchDoctor };
+const loadDoctorData = async (req, res) => {
+  try {
+    const { _id } = req.params;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const patients = await Patient.find();
+
+    const appointments = await Appointment.find({
+      doctorID: _id,
+      date: { $gte: today },
+    })
+      .select("date time status symptoms patientID")
+      .exec();
+
+    const toSend = appointments.map(({ patientID, _doc: { ...app } }) => {
+      const d = patients.find((pat) => pat._id === patientID);
+
+      return {
+        ...app,
+        patientData: {
+          _id: d._id,
+          name: d.name,
+          age: d.age,
+          gender: d.gender,
+          profilePic: d.profilePic,
+        },
+      };
+    });
+
+    res.send({ appointments: toSend });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later",
+      details: err.message,
+    });
+  }
+};
+
+export {
+  loginDoctor,
+  registerDoctor,
+  updateDoctor,
+  deleteDoctor,
+  fetchDoctor,
+  loadDoctorData,
+};
