@@ -1,4 +1,5 @@
 import fs from "fs";
+import moment from "moment";
 import Patient from "../models/patient";
 import Appointment from "../models/appointment";
 import Doctor from "../models/doctor";
@@ -177,42 +178,62 @@ const newAppointment = async (req, res) => {
       audio,
     } = req.body;
 
-    const appointment = new Appointment({
-      doctorID,
-      patientID,
-      date,
-      time,
-      symptoms,
-      additionalInfo,
-      photos,
-      videos,
-      audio,
-    });
+    const patient = await Patient.findOne({ _id: patientID });
+    const doctor = await Doctor.findOne({ _id: doctorID });
 
-    const apptID = appointment._id;
-
-    Object.values(req.files).forEach((field) => {
-      field.forEach((file, index) => {
-        fs.rename(
-          file.path,
-          `${__dirname}../../uploads/${file.fieldname}/${apptID}-${index}.${
-            file.mimetype.split("/")[1]
-          }`,
-          () => {}
-        );
+    if (!patient)
+      return res.status(400).send({
+        message: "Patient not found. Please check the patient ID.",
+        details: null,
       });
-    });
 
-    appointment.save((err, appt) => {
-      if (err) {
-        return res.status(500).send({
-          message: "Internal Server Error. Please try again later",
-          details: err.message,
+    if (!doctor)
+      return res.status(400).send({
+        message: "Doctor not found. Please check the doctor ID.",
+        details: null,
+      });
+    if (
+      moment(date, "DD/MM/YYYY").isBetween(
+        moment(doctor.availability.startDate, "DD/MM/YYYY"),
+        moment(doctor.availability.endDate, "DD/MM/YYYY")
+      )
+    ) {
+      const appointment = new Appointment({
+        doctorID,
+        patientID,
+        date,
+        time,
+        symptoms,
+        additionalInfo,
+        photos,
+        videos,
+        audio,
+      });
+
+      const apptID = appointment._id;
+      Object.values(req.files).forEach((field) => {
+        field.forEach((file, index) => {
+          fs.rename(
+            file.path,
+            `${__dirname}../../uploads/${file.fieldname}/${apptID}-${index}.${
+              file.mimetype.split("/")[1]
+            }`,
+            () => {}
+          );
         });
-      }
+      });
 
-      res.send(appt);
-    });
+      appointment.save((err, appt) => {
+        if (err) {
+          return res.status(500).send({
+            message: "Internal Server Error. Please try again later",
+            details: err.message,
+          });
+        }
+
+        res.send(appt);
+      });
+    }
   } catch (err) {
     console.log(err);
     res.status(500).send({
