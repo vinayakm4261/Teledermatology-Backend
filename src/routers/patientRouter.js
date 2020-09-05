@@ -29,6 +29,9 @@ const storage = multer.diskStorage({
     } else if (file.fieldname === "audio") {
       fs.mkdirSync(`${__dirname}../../uploads/audio`, { recursive: true });
       cb(null, `${__dirname}../../uploads/audio/`);
+    } else {
+      fs.mkdirSync(`${__dirname}../../uploads/misc`, { recursive: true });
+      cb(null, `${__dirname}../../uploads/misc/`);
     }
   },
   filename: (req, file, cb) => {

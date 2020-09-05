@@ -1,8 +1,11 @@
 import fs from "fs";
 import moment from "moment";
+
 import Patient from "../models/patient";
 import Appointment from "../models/appointment";
 import Doctor from "../models/doctor";
+
+import fileUpload from "../helpers/fileUpload";
 
 const loginPatient = async (req, res) => {
   try {
@@ -192,6 +195,7 @@ const newAppointment = async (req, res) => {
         message: "Doctor not found. Please check the doctor ID.",
         details: null,
       });
+
     if (
       moment(date, "DD/MM/YYYY").isBetween(
         moment(doctor.availability.startDate, "DD/MM/YYYY"),
@@ -253,3 +257,5 @@ export {
   newAppointment,
   loadPatientData,
 };
+
+// const url = await fileUpload(req.file, "test", req.file.filename);
