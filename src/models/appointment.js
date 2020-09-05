@@ -3,7 +3,7 @@ import mongoose, { Schema } from "mongoose";
 const appointmentSchema = new Schema({
   doctorID: String,
   patientID: String,
-  date: String,
+  date: Date,
   time: String,
   status: {
     type: String,

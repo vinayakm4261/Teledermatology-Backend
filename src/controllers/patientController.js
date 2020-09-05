@@ -153,11 +153,34 @@ const loadPatientData = async (req, res) => {
   try {
     const { _id } = req.params;
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     const doctors = await Doctor.find();
 
-    const appointments = await Appointment.find({ patientID: _id });
+    const appointments = await Appointment.find({
+      patientID: _id,
+      date: { $gte: today },
+    })
+      .select("date time status symptoms doctorID")
+      .exec();
 
-    res.send({ doctors, appointments });
+    const toSend = appointments.map(({ doctorID, _doc: { ...app } }) => {
+      const d = doctors.find((doc) => doc._id === doctorID);
+
+      return {
+        ...app,
+        doctorData: {
+          _id: d._id,
+          name: d.name,
+          hospital: d.hospital,
+          department: d.department,
+          profilePic: d.profilePic,
+        },
+      };
+    });
+
+    res.send({ appointments: toSend });
   } catch (err) {
     console.log(err);
     res.status(500).send({
