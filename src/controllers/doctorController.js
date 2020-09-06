@@ -1,4 +1,5 @@
 import Doctor from "../models/doctor";
+import fileUpload from "../helpers/fileUpload";
 
 const loginDoctor = async (req, res) => {
   try {
@@ -125,4 +126,63 @@ const fetchDoctor = async (req, res) => {
   }
 };
 
-export { loginDoctor, registerDoctor, updateDoctor, deleteDoctor, fetchDoctor };
+const updateProfile = async (req, res) => {
+  try {
+    const { id, photoUpdated, updateData } = req.body;
+
+    const updatedData = JSON.parse(updateData);
+
+    if (photoUpdated === "true") {
+      const url = await fileUpload(
+        req.file,
+        `doctor_profiles/${id}`,
+        `${id}.${req.file.mimetype.split("/")[1]}`
+      );
+
+      console.log(url);
+
+      const doctor = await Doctor.findOneAndUpdate(
+        { _id: id },
+        {
+          $set: { profilePic: url, ...updatedData },
+        }
+      );
+
+      if (!doctor)
+        return res.status(400).send({
+          message: "Doctor not found. Please check the doctor ID.",
+          details: null,
+        });
+
+      res.send(doctor);
+    } else {
+      const doctor = await Doctor.findOneAndUpdate(
+        { _id: id },
+        { $set: { ...updatedData } }
+      );
+
+      if (!doctor)
+        return res.status(400).send({
+          message: "Doctor not found. Please check the doctor ID.",
+          details: null,
+        });
+
+      res.send(doctor);
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later.",
+      details: err.message,
+    });
+  }
+};
+
+export {
+  loginDoctor,
+  registerDoctor,
+  updateDoctor,
+  deleteDoctor,
+  fetchDoctor,
+  updateProfile,
+};

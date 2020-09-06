@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { check } from "express-validator";
+import multer from "multer";
+import fs from "fs";
 
 import {
   loginDoctor,
@@ -7,9 +9,33 @@ import {
   fetchDoctor,
   updateDoctor,
   deleteDoctor,
+  updateProfile,
 } from "../controllers/doctorController";
 
 import validate from "../middlewares/validate";
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    if (file.fieldname === "photos") {
+      fs.mkdirSync(`${__dirname}../../uploads/photos`, { recursive: true });
+      cb(null, `${__dirname}../../uploads/photos`);
+    } else if (file.fieldname === "videos") {
+      fs.mkdirSync(`${__dirname}../../uploads/videos`, { recursive: true });
+      cb(null, `${__dirname}../../uploads/videos/`);
+    } else if (file.fieldname === "audio") {
+      fs.mkdirSync(`${__dirname}../../uploads/audio`, { recursive: true });
+      cb(null, `${__dirname}../../uploads/audio/`);
+    } else {
+      fs.mkdirSync(`${__dirname}../../uploads/misc`, { recursive: true });
+      cb(null, `${__dirname}../../uploads/misc/`);
+    }
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
+
+const upload = multer({ storage });
 
 const router = Router();
 
@@ -45,5 +71,9 @@ router.put("/update", updateDoctor);
 router.delete("/delete", deleteDoctor);
 
 router.get("/fetch", fetchDoctor);
+
+// router.put("/updateProfile", updateProfile);
+
+router.put("/updateProfile", upload.single("photos"), updateProfile);
 
 export default router;
