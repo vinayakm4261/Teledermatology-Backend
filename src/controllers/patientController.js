@@ -1,4 +1,5 @@
 import Patient from "../models/patient";
+import fileUpload from "../helpers/fileUpload";
 
 const loginPatient = async (req, res) => {
   try {
@@ -128,11 +129,39 @@ const fetchPatients = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   try {
-    const { id } = req.body;
+    const {
+      id,
+      name,
+      dob,
+      phoneNumber,
+      gender,
+      email,
+      diseases,
+      appointments,
+    } = req.body;
+
+    const url = await fileUpload(
+      req.file,
+      "patient_profile",
+      `${id}.${req.file.mimetype.split("/")[1]}`
+    );
+
+    console.log(url);
 
     const patient = await Patient.findOneAndUpdate(
       { _id: id },
-      { $set: { ...req.body.updateData } }
+      {
+        $set: {
+          name,
+          dob,
+          phoneNumber,
+          gender,
+          email,
+          diseases,
+          url,
+          appointments,
+        },
+      }
     );
 
     if (!patient)
