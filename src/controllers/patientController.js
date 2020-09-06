@@ -5,7 +5,7 @@ import Patient from "../models/patient";
 import Appointment from "../models/appointment";
 import Doctor from "../models/doctor";
 
-import fileUpload from "../helpers/fileUpload";
+// import fileUpload from "../helpers/fileUpload";
 
 const loginPatient = async (req, res) => {
   try {
@@ -188,6 +188,11 @@ const loadPatientData = async (req, res) => {
             department: 1,
             profilePic: 1,
           },
+        },
+      },
+      {
+        $sort: {
+          date: 1,
         },
       },
     ]);

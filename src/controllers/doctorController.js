@@ -1,4 +1,3 @@
-import Patient from "../models/patient";
 import Doctor from "../models/doctor";
 import Appointment from "../models/appointment";
 
@@ -136,7 +135,7 @@ const loadDoctorData = async (req, res) => {
 
     const appointments = await Appointment.aggregate([
       {
-        $match: { doctorID: _id, date: { $gte: today } },
+        $match: { doctorID: _id, date: { $gte: today }, status: "accepted" },
       },
       {
         $lookup: {
@@ -166,6 +165,11 @@ const loadDoctorData = async (req, res) => {
             gender: 1,
             profilePic: 1,
           },
+        },
+      },
+      {
+        $sort: {
+          date: 1,
         },
       },
     ]);
