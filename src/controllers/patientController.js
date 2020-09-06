@@ -129,48 +129,47 @@ const fetchPatients = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   try {
-    const {
-      id,
-      name,
-      dob,
-      phoneNumber,
-      gender,
-      email,
-      diseases,
-      appointments,
-    } = req.body;
+    const { id, photoUpdated, updateData } = req.body;
 
-    const url = await fileUpload(
-      req.file,
-      "patient_profile",
-      `${id}.${req.file.mimetype.split("/")[1]}`
-    );
+    const updatedData = JSON.parse(updateData);
 
-    console.log(url);
+    if (photoUpdated === "true") {
+      const url = await fileUpload(
+        req.file,
+        `patient_profiles/${id}`,
+        `${id}.${req.file.mimetype.split("/")[1]}`
+      );
 
-    const patient = await Patient.findOneAndUpdate(
-      { _id: id },
-      {
-        $set: {
-          name,
-          dob,
-          phoneNumber,
-          gender,
-          email,
-          diseases,
-          url,
-          appointments,
-        },
-      }
-    );
+      console.log(url);
 
-    if (!patient)
-      return res.status(400).send({
-        message: "Patient not found. Please check the patient ID.",
-        details: null,
-      });
+      const patient = await Patient.findOneAndUpdate(
+        { _id: id },
+        {
+          $set: { profilePic: url, ...updatedData },
+        }
+      );
 
-    res.send(patient);
+      if (!patient)
+        return res.status(400).send({
+          message: "Patient not found. Please check the patient ID.",
+          details: null,
+        });
+
+      res.send(patient);
+    } else {
+      const patient = await Patient.findOneAndUpdate(
+        { _id: id },
+        { $set: { ...updatedData } }
+      );
+
+      if (!patient)
+        return res.status(400).send({
+          message: "Patient not found. Please check the patient ID.",
+          details: null,
+        });
+
+      res.send(patient);
+    }
   } catch (err) {
     console.log(err);
     res.status(500).send({
