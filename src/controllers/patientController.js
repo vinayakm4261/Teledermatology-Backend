@@ -5,7 +5,8 @@ import Patient from "../models/patient";
 import Appointment from "../models/appointment";
 import Doctor from "../models/doctor";
 
-// import fileUpload from "../helpers/fileUpload";
+import fileUpload from "../helpers/fileUpload";
+import getAge from "../helpers/getAge";
 
 const loginPatient = async (req, res) => {
   try {
@@ -27,7 +28,11 @@ const loginPatient = async (req, res) => {
 
 const registerPatient = async (req, res) => {
   try {
-    const patient = new Patient({ ...req.body });
+    const { dob } = req.body;
+
+    const age = getAge(dob);
+
+    const patient = new Patient({ ...req.body, age });
 
     patient.save((err, pt) => {
       if (err) {
