@@ -242,9 +242,9 @@ const newAppointment = async (req, res) => {
       });
 
     if (
-      moment(date, "DD/MM/YYYY").isBetween(
-        moment(doctor.availability.startDate, "DD/MM/YYYY"),
-        moment(doctor.availability.endDate, "DD/MM/YYYY")
+      moment(date).isBetween(
+        moment(doctor.availability.startDate),
+        moment(doctor.availability.endDate)
       )
     ) {
       const appointment = new Appointment({
@@ -259,19 +259,29 @@ const newAppointment = async (req, res) => {
         audio,
       });
 
-      const apptID = appointment._id;
+      if (req.files.length > 0) {
+        const apptID = appointment._id;
 
-      Object.values(req.files).forEach((field) => {
-        field.forEach((file, index) => {
-          fs.rename(
-            file.path,
-            `${__dirname}../../uploads/${file.fieldname}/${apptID}-${index}.${
-              file.mimetype.split("/")[1]
-            }`,
-            () => {}
-          );
+        const promises = [];
+
+        Object.entries(req.files).forEach(([key, field]) => {
+          field.forEach((file, index) => {
+            const uploadPromise = fileUpload(
+              file,
+              `appointment_media/${apptID}/${key}`,
+              `${apptID}-${index}.${file.mimetype.split("/")[1]}`
+            );
+
+            promises.push(uploadPromise);
+          });
         });
-      });
+
+        const mediaUrls = await Promise.all(promises);
+
+        appointment.photos = mediaUrls.filter((url) => url.includes("photos"));
+        appointment.videos = mediaUrls.filter((url) => url.includes("videos"));
+        appointment.audio = mediaUrls.filter((url) => url.includes("audio"));
+      }
 
       appointment.save((err, appt) => {
         if (err) {
@@ -281,7 +291,7 @@ const newAppointment = async (req, res) => {
           });
         }
 
-        res.send(appt);
+        res.send({ success: true, appointment: appt });
       });
     }
   } catch (err) {
@@ -303,5 +313,3 @@ export {
   newAppointment,
   loadPatientData,
 };
-
-// const url = await fileUpload(req.file, "test", req.file.filename);
