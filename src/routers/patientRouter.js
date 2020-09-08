@@ -14,6 +14,7 @@ import {
   getAppointments,
   newAppointment,
   loadPatientData,
+  fetchDoctors,
 } from "../controllers/patientController";
 
 const router = Router();
@@ -88,5 +89,7 @@ router.put(
   ]),
   newAppointment
 );
+
+router.post("/fetchDoctors", fetchDoctors);
 
 export default router;

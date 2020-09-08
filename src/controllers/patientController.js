@@ -166,6 +166,9 @@ const loadPatientData = async (req, res) => {
         $match: { patientID: _id, date: { $gte: today } },
       },
       {
+        $limit: 8,
+      },
+      {
         $lookup: {
           from: "doctors",
           localField: "doctorID",
@@ -303,6 +306,30 @@ const newAppointment = async (req, res) => {
   }
 };
 
+const fetchDoctors = async (req, res) => {
+  try {
+    const { queryText } = req.body;
+
+    if (queryText !== "") {
+      const regex = new RegExp(`^${queryText}`, "i");
+
+      const doctors = await Doctor.find({
+        $or: [{ name: regex }, { hospital: regex }, { department: regex }],
+      });
+
+      res.send(doctors);
+    } else {
+      res.send([]);
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later",
+      details: err.message,
+    });
+  }
+};
+
 export {
   loginPatient,
   registerPatient,
@@ -312,4 +339,5 @@ export {
   getAppointments,
   newAppointment,
   loadPatientData,
+  fetchDoctors,
 };
