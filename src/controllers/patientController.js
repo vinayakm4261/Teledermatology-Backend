@@ -1,4 +1,3 @@
-import fs from "fs";
 import moment from "moment";
 
 import Patient from "../models/patient";
@@ -262,7 +261,7 @@ const newAppointment = async (req, res) => {
         audio,
       });
 
-      if (req.files.length > 0) {
+      if (Object.entries(req.files).length > 0) {
         const apptID = appointment._id;
 
         const promises = [];
@@ -330,6 +329,58 @@ const fetchDoctors = async (req, res) => {
   }
 };
 
+const updateProfile = async (req, res) => {
+  try {
+    const { id, photoUpdated, updateData } = req.body;
+
+    const updatedData = JSON.parse(updateData);
+
+    if (photoUpdated === "true") {
+      const url = await fileUpload(
+        req.file,
+        `patient_profiles/${id}`,
+        `${id}.${req.file.mimetype.split("/")[1]}`
+      );
+
+      console.log(url);
+
+      const patient = await Patient.findOneAndUpdate(
+        { _id: id },
+        {
+          $set: { profilePic: url, ...updatedData },
+        }
+      );
+
+      if (!patient)
+        return res.status(400).send({
+          message: "Patient not found. Please check the patient ID.",
+          details: null,
+        });
+
+      res.send(patient);
+    } else {
+      const patient = await Patient.findOneAndUpdate(
+        { _id: id },
+        { $set: { ...updatedData } }
+      );
+
+      if (!patient)
+        return res.status(400).send({
+          message: "Patient not found. Please check the patient ID.",
+          details: null,
+        });
+
+      res.send(patient);
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later",
+      details: err.message,
+    });
+  }
+};
+
 export {
   loginPatient,
   registerPatient,
@@ -340,4 +391,5 @@ export {
   newAppointment,
   loadPatientData,
   fetchDoctors,
+  updateProfile,
 };

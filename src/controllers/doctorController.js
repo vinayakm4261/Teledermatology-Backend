@@ -2,6 +2,7 @@ import Doctor from "../models/doctor";
 import Appointment from "../models/appointment";
 
 import getAge from "../helpers/getAge";
+import fileUpload from "../helpers/fileUpload";
 
 const loginDoctor = async (req, res) => {
   try {
@@ -185,6 +186,57 @@ const loadDoctorData = async (req, res) => {
     console.log(err);
     res.status(500).send({
       message: "Internal Server Error. Please try again later",
+    });
+  }
+};
+
+const updateProfile = async (req, res) => {
+  try {
+    const { id, photoUpdated, updateData } = req.body;
+
+    const updatedData = JSON.parse(updateData);
+
+    if (photoUpdated === "true") {
+      const url = await fileUpload(
+        req.file,
+        `doctor_profiles/${id}`,
+        `${id}.${req.file.mimetype.split("/")[1]}`
+      );
+
+      console.log(url);
+
+      const doctor = await Doctor.findOneAndUpdate(
+        { _id: id },
+        {
+          $set: { profilePic: url, ...updatedData },
+        }
+      );
+
+      if (!doctor)
+        return res.status(400).send({
+          message: "Doctor not found. Please check the doctor ID.",
+          details: null,
+        });
+
+      res.send(doctor);
+    } else {
+      const doctor = await Doctor.findOneAndUpdate(
+        { _id: id },
+        { $set: { ...updatedData } }
+      );
+
+      if (!doctor)
+        return res.status(400).send({
+          message: "Doctor not found. Please check the doctor ID.",
+          details: null,
+        });
+
+      res.send(doctor);
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later.",
       details: err.message,
     });
   }
@@ -197,4 +249,5 @@ export {
   deleteDoctor,
   fetchDoctor,
   loadDoctorData,
+  updateProfile,
 };

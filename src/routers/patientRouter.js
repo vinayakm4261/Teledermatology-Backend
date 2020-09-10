@@ -15,6 +15,7 @@ import {
   newAppointment,
   loadPatientData,
   fetchDoctors,
+  updateProfile,
 } from "../controllers/patientController";
 
 const router = Router();
@@ -91,5 +92,7 @@ router.put(
 );
 
 router.post("/fetchDoctors", fetchDoctors);
+
+router.put("/updateProfile", upload.single("photos"), updateProfile);
 
 export default router;
