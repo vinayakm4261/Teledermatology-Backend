@@ -45,7 +45,7 @@ function authReq(req, res, next) {
   }
 }
 
-// app.use("/", authReq);
+app.use("/", authReq);
 
 app.use("/patient", patientRouter);
 
