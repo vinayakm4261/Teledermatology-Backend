@@ -1,4 +1,7 @@
 import Doctor from "../models/doctor";
+import Appointment from "../models/appointment";
+
+import getAge from "../helpers/getAge";
 import fileUpload from "../helpers/fileUpload";
 
 const loginDoctor = async (req, res) => {
@@ -21,7 +24,11 @@ const loginDoctor = async (req, res) => {
 
 const registerDoctor = async (req, res) => {
   try {
-    const doctor = new Doctor({ ...req.body });
+    const { dob } = req.body;
+
+    const age = getAge(dob);
+
+    const doctor = new Doctor({ ...req.body, age });
 
     doctor.save((err, dr) => {
       if (err) {
@@ -126,6 +133,63 @@ const fetchDoctor = async (req, res) => {
   }
 };
 
+const loadDoctorData = async (req, res) => {
+  try {
+    const { _id } = req.params;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const appointments = await Appointment.aggregate([
+      {
+        $match: { doctorID: _id, date: { $gte: today }, status: "accepted" },
+      },
+      {
+        $lookup: {
+          from: "patients",
+          localField: "patientID",
+          foreignField: "_id",
+          as: "patientDataArray",
+        },
+      },
+      {
+        $addFields: {
+          patientData: {
+            $arrayElemAt: ["$patientDataArray", 0],
+          },
+        },
+      },
+      {
+        $project: {
+          date: 1,
+          time: 1,
+          status: 1,
+          symptoms: 1,
+          patientData: {
+            _id: 1,
+            name: 1,
+            age: 1,
+            gender: 1,
+            profilePic: 1,
+          },
+        },
+      },
+      {
+        $sort: {
+          date: 1,
+        },
+      },
+    ]);
+
+    res.send({ appointments });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later",
+    });
+  }
+};
+
 const updateProfile = async (req, res) => {
   try {
     const { id, photoUpdated, updateData } = req.body;
@@ -184,5 +248,6 @@ export {
   updateDoctor,
   deleteDoctor,
   fetchDoctor,
+  loadDoctorData,
   updateProfile,
 };

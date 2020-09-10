@@ -3,16 +3,22 @@ import { check } from "express-validator";
 import multer from "multer";
 import fs from "fs";
 
+import validate from "../middlewares/validate";
+
 import {
   loginPatient,
   registerPatient,
   fetchPatients,
   updatePatient,
   deletePatient,
+  getAppointments,
+  newAppointment,
+  loadPatientData,
+  fetchDoctors,
   updateProfile,
 } from "../controllers/patientController";
 
-import validate from "../middlewares/validate";
+const router = Router();
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -36,8 +42,6 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
-
-const router = Router();
 
 router.post(
   "/login",
@@ -67,7 +71,27 @@ router.delete("/delete", deletePatient);
 
 router.get("/fetch", fetchPatients);
 
-// router.put("/updateProfile", updateProfile);
+router.get("/getAppointments/:_id", getAppointments);
+
+router.get("/loadPatientData/:_id", loadPatientData);
+
+router.put(
+  "/newAppointment",
+  upload.fields([
+    {
+      name: "photos",
+    },
+    {
+      name: "videos",
+    },
+    {
+      name: "audio",
+    },
+  ]),
+  newAppointment
+);
+
+router.post("/fetchDoctors", fetchDoctors);
 
 router.put("/updateProfile", upload.single("photos"), updateProfile);
 

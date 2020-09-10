@@ -8,6 +8,7 @@ import cors from "cors";
 import admin from "./config/admin";
 import patientRouter from "./routers/patientRouter";
 import doctorRouter from "./routers/doctorRouter";
+import commonRouter from "./routers/commonRouter";
 
 dotenv.config();
 
@@ -44,19 +45,21 @@ function authReq(req, res, next) {
   }
 }
 
-app.use("/", authReq);
+// app.use("/", authReq);
 
 app.use("/patient", patientRouter);
 
 app.use("/doctor", doctorRouter);
 
+app.use("/common", commonRouter);
+
 app.get("/status", (req, res) => {
   res.send({ status: "Up" });
 });
 
-app.use((req, res, next) => {
+app.use((req, res) => {
   res.status(404);
-  res.send({ message: "Route not found" });
+  res.send({ message: "Endpoint not found" });
 });
 
 const server = app.listen(process.env.PORT || 3000, () => {

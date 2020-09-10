@@ -20,9 +20,9 @@ const doctorSchema = new Schema({
       return process.env.DOCTOR_AVATAR_M;
     },
   },
+  availability: Object,
   department: String,
   hospital: String,
-  appointments: Array,
 });
 
 export default mongoose.model("doctors", doctorSchema);

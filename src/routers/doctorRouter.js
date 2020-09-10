@@ -9,6 +9,7 @@ import {
   fetchDoctor,
   updateDoctor,
   deleteDoctor,
+  loadDoctorData,
   updateProfile,
 } from "../controllers/doctorController";
 
@@ -72,7 +73,7 @@ router.delete("/delete", deleteDoctor);
 
 router.get("/fetch", fetchDoctor);
 
-// router.put("/updateProfile", updateProfile);
+router.get("/loadDoctorData/:_id", loadDoctorData);
 
 router.put("/updateProfile", upload.single("photos"), updateProfile);
 
