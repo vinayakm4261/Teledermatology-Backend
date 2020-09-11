@@ -34,10 +34,7 @@ const loginUser = async (req, res) => {
 
 const agoraToken = async (req, res) => {
   try {
-    const appID = process.env.AGORA_APP_ID;
-    const appCertificate = process.env.AGORA_APP_CERTIFICATE;
     const { channelName, uid } = req.body;
-    const role = RtcRole.PUBLISHER;
 
     const expirationTimeInSeconds = 1800;
 
@@ -46,15 +43,15 @@ const agoraToken = async (req, res) => {
     const privilegeExpiredTs = currentTimestamp + expirationTimeInSeconds;
 
     const token = RtcTokenBuilder.buildTokenWithUid(
-      appID,
-      appCertificate,
+      process.env.AGORA_APP_ID,
+      process.env.AGORA_APP_CERTIFICATE,
       channelName,
       uid,
-      role,
+      RtcRole.PUBLISHER,
       privilegeExpiredTs
     );
 
-    return res.send(token);
+    return res.send({ token });
   } catch (err) {
     console.log(err);
     res.status(500).send({

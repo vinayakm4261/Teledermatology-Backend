@@ -14,6 +14,17 @@ router.post(
   loginUser
 );
 
-router.post("/agoraToken", agoraToken);
+router.post(
+  "/agoraToken",
+  [
+    check("channelName")
+      .not()
+      .isEmpty()
+      .withMessage("Please provide a channel name"),
+    check("uid").not().isEmpty().withMessage("Please provide a user ID"),
+  ],
+  validate,
+  agoraToken
+);
 
 export default router;
