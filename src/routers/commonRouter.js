@@ -3,7 +3,7 @@ import { check } from "express-validator";
 
 import validate from "../middlewares/validate";
 
-import { loginUser } from "../controllers/commonController";
+import { loginUser, agoraToken } from "../controllers/commonController";
 
 const router = Router();
 
@@ -13,5 +13,7 @@ router.post(
   validate,
   loginUser
 );
+
+router.post("/agoraToken", agoraToken);
 
 export default router;
