@@ -16,6 +16,7 @@ import {
   loadPatientData,
   fetchDoctors,
   updateProfile,
+  uploadConsent,
 } from "../controllers/patientController";
 
 const router = Router();
@@ -94,5 +95,20 @@ router.put(
 router.post("/fetchDoctors", fetchDoctors);
 
 router.put("/updateProfile", upload.single("photos"), updateProfile);
+
+router.post(
+  "/uploadConsent",
+  upload.fields([
+    {
+      name: "videos",
+      maxCount: 1,
+    },
+    {
+      name: "audio",
+      maxCount: 1,
+    },
+  ]),
+  uploadConsent
+);
 
 export default router;

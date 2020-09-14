@@ -381,6 +381,60 @@ const updateProfile = async (req, res) => {
   }
 };
 
+const uploadConsent = async (req, res) => {
+  try {
+    const { patientID, appointmentID } = req.body;
+
+    const patient = await Patient.findOne({ _id: patientID });
+    const appointment = await Appointment.findOne({ _id: appointmentID });
+
+    if (!patient)
+      return res.status(400).send({
+        message: "Patient not found. Please check the patient ID.",
+        details: null,
+      });
+
+    if (!appointment)
+      return res.status(400).send({
+        message: "Appointment not found. Please check the appointment ID.",
+        details: null,
+      });
+
+    if (Object.values(req.files).length > 0) {
+      const file = Object.values(req.files)[0][0];
+
+      const url = await fileUpload(
+        file,
+        `appointment_media/${appointmentID}/consent`,
+        `${appointmentID}-consent.${file.mimetype.split("/")[1]}`
+      );
+
+      appointment.consent = url;
+
+      appointment.save((err, appt) => {
+        if (err)
+          return res.status(500).send({
+            message: "Internal Server Error. Please try again later",
+            details: err.message,
+          });
+
+        res.send({ appointment: appt });
+      });
+    } else {
+      res.status(400).send({
+        message: "No file received. Check request",
+        details: null,
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later",
+      details: err.message,
+    });
+  }
+};
+
 export {
   loginPatient,
   registerPatient,
@@ -392,4 +446,5 @@ export {
   loadPatientData,
   fetchDoctors,
   updateProfile,
+  uploadConsent,
 };
