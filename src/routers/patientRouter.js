@@ -101,9 +101,11 @@ router.post(
   upload.fields([
     {
       name: "videos",
+      maxCount: 1,
     },
     {
       name: "audio",
+      maxCount: 1,
     },
   ]),
   uploadConsent
