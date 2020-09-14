@@ -1,6 +1,11 @@
+import { RtcTokenBuilder, RtcRole } from "agora-access-token";
+
+import dotenv from "dotenv";
+
 import Patient from "../models/patient";
-import Appointment from "../models/appointment";
 import Doctor from "../models/doctor";
+
+dotenv.config();
 
 const loginUser = async (req, res) => {
   try {
@@ -27,4 +32,33 @@ const loginUser = async (req, res) => {
   }
 };
 
-export { loginUser };
+const agoraToken = async (req, res) => {
+  try {
+    const { channelName, uid } = req.body;
+
+    const expirationTimeInSeconds = 1800;
+
+    const currentTimestamp = Math.floor(Date.now() / 1000);
+
+    const privilegeExpiredTs = currentTimestamp + expirationTimeInSeconds;
+
+    const token = RtcTokenBuilder.buildTokenWithUid(
+      process.env.AGORA_APP_ID,
+      process.env.AGORA_APP_CERTIFICATE,
+      channelName,
+      uid,
+      RtcRole.PUBLISHER,
+      privilegeExpiredTs
+    );
+
+    return res.send({ token });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later",
+      details: err.message,
+    });
+  }
+};
+
+export { loginUser, agoraToken };
