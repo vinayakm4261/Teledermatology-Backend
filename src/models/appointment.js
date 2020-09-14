@@ -14,6 +14,7 @@ const appointmentSchema = new Schema({
   photos: Array,
   videos: Array,
   audio: Array,
+  consent: String,
 });
 
 export default mongoose.model("appointments", appointmentSchema);

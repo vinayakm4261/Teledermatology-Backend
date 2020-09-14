@@ -1,4 +1,5 @@
 import moment from "moment";
+import fs from "fs";
 
 import Patient from "../models/patient";
 import Appointment from "../models/appointment";
@@ -381,6 +382,35 @@ const updateProfile = async (req, res) => {
   }
 };
 
+const uploadConsent = async (req, res) => {
+  const { patientID, apptID } = req.body;
+
+  const patient = await Patient.findOne({ _id: patientID });
+  const appointment = await Appointment.findOne({ _id: apptID });
+
+  if (!patient)
+    return res.status(400).send({
+      message: "Patient not found. Please check the patient ID.",
+      details: null,
+    });
+
+  if (!appointment)
+    return res.status(400).send({
+      message: "Appointment not found. Please check the appointment ID.",
+      details: null,
+    });
+
+  const file = Object.values(req.files)[0][0];
+  fs.rename(
+    file.path,
+    `src/uploads/${file.fieldname}/${apptID}.${file.mimetype.split("/")[1]}`,
+    () => {
+      console.log("Renamed");
+    }
+  );
+  res.send("Hello");
+};
+
 export {
   loginPatient,
   registerPatient,
@@ -392,4 +422,5 @@ export {
   loadPatientData,
   fetchDoctors,
   updateProfile,
+  uploadConsent,
 };
