@@ -312,9 +312,12 @@ const fetchDoctors = async (req, res) => {
     if (queryText !== "") {
       const regex = new RegExp(`^${queryText}`, "i");
 
-      const doctors = await Doctor.find({
-        $or: [{ name: regex }, { hospital: regex }, { department: regex }],
-      });
+      const doctors = await Doctor.find(
+        {
+          $or: [{ name: regex }, { hospital: regex }, { department: regex }],
+        },
+        { name: 1, profilePic: 1, hospital: 1, department: 1, availability: 1 }
+      );
 
       res.send(doctors);
     } else {
