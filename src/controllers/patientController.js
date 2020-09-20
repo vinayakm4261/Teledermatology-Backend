@@ -165,6 +165,11 @@ const loadPatientData = async (req, res) => {
         $match: { patientID: _id, date: { $gte: today } },
       },
       {
+        $sort: {
+          date: 1,
+        },
+      },
+      {
         $limit: 8,
       },
       {
@@ -197,11 +202,6 @@ const loadPatientData = async (req, res) => {
           },
         },
       },
-      {
-        $sort: {
-          date: 1,
-        },
-      },
     ]);
 
     res.send({ appointments });
@@ -228,6 +228,11 @@ const newAppointment = async (req, res) => {
       audio,
     } = req.body;
 
+    console.log(req.body);
+    console.log("Normal", time);
+    console.log("Moment", moment(time).format("DD/MM/YYYY hh:mm A"));
+    console.log("Date object", new Date(time));
+
     const patient = await Patient.findOne({ _id: patientID });
     const doctor = await Doctor.findOne({ _id: doctorID });
 
@@ -253,7 +258,7 @@ const newAppointment = async (req, res) => {
         doctorID,
         patientID,
         date,
-        time,
+        time: moment(time).utcOffset("+05:30").format("hh:mm A"),
         symptoms,
         additionalInfo,
         photos,
@@ -293,7 +298,23 @@ const newAppointment = async (req, res) => {
           });
         }
 
-        res.send({ success: true, appointment: appt });
+        res.send({
+          success: true,
+          appointment: {
+            _id: appt._id,
+            date: appt.date,
+            time: appt.time,
+            status: appt.status,
+            symptoms: appt.symptoms,
+            doctorData: {
+              _id: doctor._id,
+              name: doctor.name,
+              hospital: doctor.hospital,
+              department: doctor.department,
+              profilePic: doctor.profilePic,
+            },
+          },
+        });
       });
     }
   } catch (err) {
