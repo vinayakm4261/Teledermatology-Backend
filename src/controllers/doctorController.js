@@ -209,7 +209,8 @@ const updateProfile = async (req, res) => {
         { _id: id },
         {
           $set: { profilePic: url, ...updatedData },
-        }
+        },
+        { new: true }
       );
 
       if (!doctor)
@@ -222,7 +223,8 @@ const updateProfile = async (req, res) => {
     } else {
       const doctor = await Doctor.findOneAndUpdate(
         { _id: id },
-        { $set: { ...updatedData } }
+        { $set: { ...updatedData } },
+        { new: true }
       );
 
       if (!doctor)

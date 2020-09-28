@@ -372,7 +372,8 @@ const updateProfile = async (req, res) => {
         { _id: id },
         {
           $set: { profilePic: url, ...updatedData },
-        }
+        },
+        { new: true }
       );
 
       if (!patient)
@@ -385,7 +386,8 @@ const updateProfile = async (req, res) => {
     } else {
       const patient = await Patient.findOneAndUpdate(
         { _id: id },
-        { $set: { ...updatedData } }
+        { $set: { ...updatedData } },
+        { new: true }
       );
 
       if (!patient)
