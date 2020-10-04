@@ -17,6 +17,7 @@ import {
   fetchDoctors,
   updateProfile,
   uploadConsent,
+  fetchAppointment,
 } from "../controllers/patientController";
 
 const router = Router();
@@ -109,6 +110,18 @@ router.post(
     },
   ]),
   uploadConsent
+);
+
+router.post(
+  "/fetchAppointment",
+  [
+    check("appointmentID")
+      .not()
+      .isEmpty()
+      .withMessage("Please send appointmentID"),
+  ],
+  validate,
+  fetchAppointment
 );
 
 export default router;

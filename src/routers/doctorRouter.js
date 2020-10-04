@@ -11,6 +11,7 @@ import {
   deleteDoctor,
   loadDoctorData,
   updateProfile,
+  fetchAppointment,
 } from "../controllers/doctorController";
 
 import validate from "../middlewares/validate";
@@ -76,5 +77,17 @@ router.get("/fetch", fetchDoctor);
 router.get("/loadDoctorData/:_id", loadDoctorData);
 
 router.put("/updateProfile", upload.single("photos"), updateProfile);
+
+router.post(
+  "/fetchAppointment",
+  [
+    check("appointmentID")
+      .not()
+      .isEmpty()
+      .withMessage("Please send appointmentID"),
+  ],
+  validate,
+  fetchAppointment
+);
 
 export default router;

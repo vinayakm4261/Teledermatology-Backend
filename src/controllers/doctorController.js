@@ -1,3 +1,6 @@
+import { Types } from "mongoose";
+import moment from "moment";
+
 import Doctor from "../models/doctor";
 import Appointment from "../models/appointment";
 
@@ -203,12 +206,23 @@ const updateProfile = async (req, res) => {
         `${id}.${req.file.mimetype.split("/")[1]}`
       );
 
-      console.log(url);
-
       const doctor = await Doctor.findOneAndUpdate(
         { _id: id },
         {
-          $set: { profilePic: url, ...updatedData },
+          $set: {
+            profilePic: url,
+            ...updatedData,
+            age: getAge(updatedData.dob),
+            availability: {
+              ...updatedData.availability,
+              startTime: moment(updatedData.availability.startTime)
+                .utcOffset("+05:30")
+                .format("hh:mm A"),
+              endTime: moment(updatedData.availability.endTime)
+                .utcOffset("+05:30")
+                .format("hh:mm A"),
+            },
+          },
         },
         { new: true }
       );
@@ -223,7 +237,21 @@ const updateProfile = async (req, res) => {
     } else {
       const doctor = await Doctor.findOneAndUpdate(
         { _id: id },
-        { $set: { ...updatedData } },
+        {
+          $set: {
+            ...updatedData,
+            age: getAge(updatedData.dob),
+            availability: {
+              ...updatedData.availability,
+              startTime: moment(updatedData.availability.startTime)
+                .utcOffset("+05:30")
+                .format("hh:mm A"),
+              endTime: moment(updatedData.availability.endTime)
+                .utcOffset("+05:30")
+                .format("hh:mm A"),
+            },
+          },
+        },
         { new: true }
       );
 
@@ -244,6 +272,66 @@ const updateProfile = async (req, res) => {
   }
 };
 
+const fetchAppointment = async (req, res) => {
+  try {
+    const { appointmentID } = req.body;
+
+    const appointment = await Appointment.aggregate([
+      {
+        $match: { _id: Types.ObjectId(appointmentID) },
+      },
+      {
+        $lookup: {
+          from: "patients",
+          localField: "patientID",
+          foreignField: "_id",
+          as: "patientDataArray",
+        },
+      },
+      {
+        $addFields: {
+          patientData: {
+            $arrayElemAt: ["$patientDataArray", 0],
+          },
+        },
+      },
+      {
+        $project: {
+          date: 1,
+          time: 1,
+          status: 1,
+          symptoms: 1,
+          additionalInfo: 1,
+          photos: 1,
+          videos: 1,
+          audio: 1,
+          patientData: {
+            _id: 1,
+            name: 1,
+            age: 1,
+            gender: 1,
+            diseases: 1,
+            profilePic: 1,
+          },
+        },
+      },
+    ]);
+
+    if (!appointment)
+      return res
+        .status(500)
+        .send({ message: "Appointment not found", details: null });
+
+    res.send(appointment);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later",
+      details: err.message,
+    });
+  }
+};
+
 export {
   loginDoctor,
   registerDoctor,
@@ -252,4 +340,5 @@ export {
   fetchDoctor,
   loadDoctorData,
   updateProfile,
+  fetchAppointment,
 };

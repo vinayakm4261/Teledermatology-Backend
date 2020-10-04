@@ -1,4 +1,5 @@
 import moment from "moment";
+import { Types } from "mongoose";
 
 import Patient from "../models/patient";
 import Appointment from "../models/appointment";
@@ -228,11 +229,6 @@ const newAppointment = async (req, res) => {
       audio,
     } = req.body;
 
-    console.log(req.body);
-    console.log("Normal", time);
-    console.log("Moment", moment(time).format("DD/MM/YYYY hh:mm A"));
-    console.log("Date object", new Date(time));
-
     const patient = await Patient.findOne({ _id: patientID });
     const doctor = await Doctor.findOne({ _id: doctorID });
 
@@ -366,12 +362,14 @@ const updateProfile = async (req, res) => {
         `${id}.${req.file.mimetype.split("/")[1]}`
       );
 
-      console.log(url);
-
       const patient = await Patient.findOneAndUpdate(
         { _id: id },
         {
-          $set: { profilePic: url, ...updatedData },
+          $set: {
+            profilePic: url,
+            ...updatedData,
+            age: getAge(updatedData.dob),
+          },
         },
         { new: true }
       );
@@ -386,7 +384,7 @@ const updateProfile = async (req, res) => {
     } else {
       const patient = await Patient.findOneAndUpdate(
         { _id: id },
-        { $set: { ...updatedData } },
+        { $set: { ...updatedData, age: getAge(updatedData.dob) } },
         { new: true }
       );
 
@@ -461,6 +459,65 @@ const uploadConsent = async (req, res) => {
   }
 };
 
+const fetchAppointment = async (req, res) => {
+  try {
+    const { appointmentID } = req.body;
+
+    const appointment = await Appointment.aggregate([
+      {
+        $match: { _id: Types.ObjectId(appointmentID) },
+      },
+      {
+        $lookup: {
+          from: "doctors",
+          localField: "doctorID",
+          foreignField: "_id",
+          as: "doctorDataArray",
+        },
+      },
+      {
+        $addFields: {
+          doctorData: {
+            $arrayElemAt: ["$doctorDataArray", 0],
+          },
+        },
+      },
+      {
+        $project: {
+          date: 1,
+          time: 1,
+          status: 1,
+          symptoms: 1,
+          additionalInfo: 1,
+          photos: 1,
+          videos: 1,
+          audio: 1,
+          doctorData: {
+            _id: 1,
+            name: 1,
+            hospital: 1,
+            department: 1,
+            profilePic: 1,
+          },
+        },
+      },
+    ]);
+
+    if (!appointment)
+      return res
+        .status(500)
+        .send({ message: "Appointment not found", details: null });
+
+    res.send(appointment);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      message: "Internal Server Error. Please try again later",
+      details: err.message,
+    });
+  }
+};
+
 export {
   loginPatient,
   registerPatient,
@@ -473,4 +530,5 @@ export {
   fetchDoctors,
   updateProfile,
   uploadConsent,
+  fetchAppointment,
 };
