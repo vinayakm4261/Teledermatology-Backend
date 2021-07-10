@@ -245,7 +245,7 @@ const newAppointment = async (req, res) => {
       });
 
     if (
-      moment(date).isBetween(
+      moment(new Date(date)).isBetween(
         moment(doctor.availability.startDate),
         moment(doctor.availability.endDate)
       )
@@ -312,12 +312,22 @@ const newAppointment = async (req, res) => {
           },
         });
       });
+    } else {
+      return res.status(500).send({
+        success: false,
+        message: "Doctor not available on selected date",
+        details: `Doctor is available between ${moment(
+          doctor.availability.startDate
+        ).format("DD/MM/YYYY")} and ${moment(
+          doctor.availability.endDate
+        ).format("DD/MM/YYYY")}`,
+      });
     }
   } catch (err) {
     console.log(err);
     res.status(500).send({
       message: "Internal Server Error. Please try again later",
-      details: err.message,
+      details: "",
     });
   }
 };
